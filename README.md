@@ -1,2 +1,2 @@
 # Window-to-Hell
-There is one Hell under ground, there is many windows to it.
+Simple ignore-window-position viewer.
