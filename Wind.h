@@ -25,9 +25,14 @@ public:
 	window_to_hell(std::string img_file, cv::Rect rect = cv::Rect());
 	void SetImg(cv::Mat img);
 	void SetImg(std::string img_file);
-	void SetPos(cv::Rect rect);
+	void SetPos(cv::Point pos);
+	void SetSize(cv::Size size);
 protected:
-	cv::Rect _rect; // max size
+	void Init(cv::Mat img, cv::Rect rect, std::string name = "");
+	void Refresh();
+protected:
+	cv::Point _pos;
+	cv::Size _size;
 	cv::Mat _img;
 	std::string _name;
 };
@@ -38,5 +43,5 @@ protected:
 
 std::string CreateRandomName(unsigned num_chars, std::string prefix = "", std::string postfix = "");
 bool RelocHellWnd(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* res);
-
+cv::Rect GetImgRect(HWND hWnd);
 extern wnd_proc hell_proc_for_leather;
