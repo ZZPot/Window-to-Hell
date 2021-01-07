@@ -27,9 +27,10 @@ public:
 	void SetImg(std::string img_file);
 	void SetPos(cv::Point pos);
 	void SetSize(cv::Size size);
+	void SetPosAndSize(cv::Point pos, cv::Size size);
 protected:
 	void Init(cv::Mat img, cv::Rect rect, std::string name = "");
-	void Refresh();
+	void Refresh(bool refreshPos = true, bool refreshSize = true);
 protected:
 	cv::Point _pos;
 	cv::Size _size;
@@ -37,11 +38,8 @@ protected:
 	std::string _name;
 };
 
-#define RANDOM_NAME_MAX_CHARS 30
-#define RANDOM_CHUNK_SIZE	5
 #define NAME_LEN			5
 
-std::string CreateRandomName(unsigned num_chars, std::string prefix = "", std::string postfix = "");
 bool RelocHellWnd(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* res);
 cv::Rect GetImgRect(HWND hWnd);
 extern wnd_proc hell_proc_for_leather;

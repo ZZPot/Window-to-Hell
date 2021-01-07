@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "Wind.h"
 #include <iostream>
+#include "common.h"
 #pragma warning (disable: 4996)
 
 window_to_hell::window_to_hell(cv::Mat img, cv::Rect rect)
@@ -17,7 +18,7 @@ void window_to_hell::Init(cv::Mat img, cv::Rect rect, std::string name)
 	if(!name.length())
 		_name = CreateRandomName(NAME_LEN, WND_PREFIX "_");
 	else
-		_name = CreateRandomName(NAME_LEN, WND_PREFIX "_", name);
+		_name = CreateRandomName(NAME_LEN, WND_PREFIX "_", name.c_str());
 	_img = img; 
 	_size.width = rect.width;
 	_size.height = rect.height;
@@ -50,13 +51,20 @@ void window_to_hell::SetImg(std::string img_file)
 void window_to_hell::SetPos(cv::Point pos)
 {
 	_pos = pos;
-	Refresh();
+	Refresh(true, false);
 }
 void window_to_hell::SetSize(cv::Size size)
 {
 	_size = size;
+	Refresh(false, true);
 }
-void window_to_hell::Refresh()
+void window_to_hell::SetPosAndSize(cv::Point pos, cv::Size size)
+{
+	_pos = pos;
+	_size = size;
+	Refresh();
+}
+void window_to_hell::Refresh(bool refreshPos, bool refreshSize)
 {
 	cv::Rect temp(_pos, _size);
 	if(temp.width > _img.cols)
@@ -87,43 +95,29 @@ void window_to_hell::Refresh()
 		temp.height = 1;
 		temp.y = _img.rows - 1;
 	}
-	cv::imshow(_name, _img(temp));
-	cv::resizeWindow(_name, temp.width, temp.height);
-}
-std::string CreateRandomName(unsigned num_chars, std::string prefix, std::string postfix)
-{
-	std::string new_name = prefix;
-	if(num_chars > RANDOM_NAME_MAX_CHARS)
-		num_chars = RANDOM_NAME_MAX_CHARS;
-	unsigned u_rand;
-	char rand_chunk[RANDOM_CHUNK_SIZE + 1];
-	for(; num_chars; num_chars -= cv::min<unsigned>(num_chars, RANDOM_CHUNK_SIZE))
-	{
-		rand_s(&u_rand);
-		itoa(u_rand % (unsigned)pow(10, cv::min<unsigned>(num_chars, RANDOM_CHUNK_SIZE)), rand_chunk, 10);
-		new_name += rand_chunk;
-	}
-	new_name += postfix;
-	return new_name;
+	if(refreshPos)
+		cv::imshow(_name, _img(temp));
+	if(refreshSize)
+		cv::resizeWindow(_name, temp.width, temp.height);
 }
 bool RelocHellWnd(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* res)
 {
 	switch(uMsg)
 	{
-	case WM_MOVE:
-	{
-		cv::Rect rect = GetImgRect(hWnd);
-		window_to_hell* wth = (window_to_hell*)GetProp(hWnd, WND_WTH_PROP);
-		wth->SetPos(rect.tl());
-	}
-		break;
-	case WM_SIZE:
-	{
-		cv::Rect rect = GetImgRect(hWnd);
-		window_to_hell* wth = (window_to_hell*)GetProp(hWnd, WND_WTH_PROP);
-		wth->SetSize(rect.size());
-	}
-		break;
+		case WM_MOVE:
+			{
+				cv::Rect rect = GetImgRect(hWnd);
+				window_to_hell* wth = (window_to_hell*)GetProp(hWnd, WND_WTH_PROP);
+				wth->SetPos(rect.tl());
+			}
+			break;
+		case WM_SIZE:
+			{
+				cv::Rect rect = GetImgRect(hWnd);
+				window_to_hell* wth = (window_to_hell*)GetProp(hWnd, WND_WTH_PROP);
+				wth->SetPosAndSize(rect.tl(), rect.size());
+			}
+			break;
 	}
 	return false;
 }

@@ -14,6 +14,8 @@ void wnd_proc::Subclass(HWND hWnd, EXT_WNDPROC proc)
 }
 EXT_WNDPROC wnd_proc::SetProc(EXT_WNDPROC proc)
 {
+	if (proc == nullptr)
+		return _proc;
 	EXT_WNDPROC prev = _proc;
 	_proc = proc;
 	return prev;
@@ -28,10 +30,10 @@ LRESULT wnd_proc::operator()(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT res;
 	if(_proc != NULL)
-		if(_proc(hWnd, uMsg, wParam, lParam, &res))
+		if(_proc(hWnd, uMsg, wParam, lParam, &res)) // returns TRUE if no need to further message processing
 			return res;
 	if(_old_proc != NULL)
-		return CallWindowProc(_old_proc, hWnd, uMsg, wParam, lParam);
+		return CallWindowProc(_old_proc, hWnd, uMsg, wParam, lParam); // sure we should call original window procedure
 	return (LRESULT)0;
 }
 
